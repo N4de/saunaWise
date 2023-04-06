@@ -12,24 +12,29 @@ function App() {
     const participantList = participants.split(',').map((p) => p.trim());
     const shifts = Math.ceil(totalTime / shiftLength);
     const schedule = [];
-
+  
+    // Calculate the maximum number of shifts a participant can have together
+    const maxTogetherShifts = Math.min(shifts, Math.ceil(participantList.length / personLimit));
+  
+    // Distribute the participants among the shifts
     for (let i = 0; i < shifts; i++) {
       const shiftStart = i * shiftLength;
       const shiftEnd = shiftStart + Number(shiftLength);
-
-      for (let j = i * personLimit; j < (i + 1) * personLimit; j++) {
-        if (participantList[j]) {
-          schedule.push({
-            name: participantList[j],
-            start: shiftStart,
-            end: shiftEnd,
-          });
-        }
+  
+      for (let j = 0; j < personLimit; j++) {
+        const participantIndex = (i + j * maxTogetherShifts) % participantList.length;
+        const participant = participantList[participantIndex];
+        schedule.push({
+          name: participant,
+          start: shiftStart,
+          end: shiftEnd,
+        });
       }
     }
-
+  
     setSchedule(schedule);
   };
+  
 
   return (
     <div className="App">
@@ -76,13 +81,20 @@ function App() {
       </div>
       <button onClick={calculateShifts}>Calculate Shifts</button>
       <h2>Shift Schedule:</h2>
-      <ul>
-        {schedule.map((shift, index) => (
-          <li key={index}>
-            {shift.name} - {shift.start} to {shift.end} minutes
-          </li>
-        ))}
-      </ul>
+      <ol>
+      {schedule.reduce((acc, shift, index) => {
+        if (index % personLimit === 0) {
+          acc.push([]);
+        }
+        acc[acc.length - 1].push(shift);
+        return acc;
+      }, []).map((shiftGroup, index) => (
+        <li key={index}>
+          Shift {index + 1} ({shiftGroup[0].start} - {shiftGroup[0].end} minutes):{" "}
+          {shiftGroup.map((shift) => shift.name).join(', ')}
+        </li>
+      ))}
+    </ol>
     </div>
   );
 }
