@@ -7,6 +7,13 @@ function App() {
   const [totalTime, setTotalTime] = useState('');
   const [shiftLength, setShiftLength] = useState('');
   const [schedule, setSchedule] = useState([]);
+  const [theme, setTheme] = useState('default');
+
+
+  const handleChangeTheme = (event) => {
+    setTheme(event.target.value);
+  };
+  
 
   const calculateShifts = () => {
     const participantList = participants.split(',').map((p) => p.trim());
@@ -36,8 +43,10 @@ function App() {
   };
   
 
+  
+
   return (
-    <div className="App">
+    <div className={`App ${theme}`}>
       <h1>SaunaWise</h1>
       <div>
         <label>
@@ -95,6 +104,16 @@ function App() {
         </li>
       ))}
     </ol>
+    <div>
+      <label>
+        Theme:
+        <select value={theme} onChange={handleChangeTheme}>
+          <option value="default">Default</option>
+          <option value="lotr">Lord of the Rings</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
     </div>
   );
 }
